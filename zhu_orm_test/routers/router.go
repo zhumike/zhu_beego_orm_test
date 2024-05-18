@@ -12,5 +12,6 @@ func init() {
 	beego.Router("/insert", &controllers.OrmApiController{}, "get:InsertOne")
 	beego.Router("/getOne", &controllers.OrmApiController{}, "get:GetUserOne")
 	beego.Router("/updateOne", &controllers.OrmApiController{}, "get:UpdateUserOne")
+	beego.Router("/deleteOne", &controllers.OrmApiController{}, "get:DeleteUserOne")
 
 }

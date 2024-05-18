@@ -47,6 +47,9 @@ func (c *OrmApiController) InsertOne() {
 		return
 	} else {
 		logs.Info("插入的用户名为：%s", userinfo.Name)
+		rp := tools.Customize(200, "成功插入数据")
+		c.Data["json"] = rp
+		c.ServeJSON()
 	}
 
 	c.Data["Website"] = "测试orm beego api"
@@ -54,6 +57,10 @@ func (c *OrmApiController) InsertOne() {
 	c.TplName = "test.html"
 }
 
+// GetUserOne
+// @Author ZhenZhen Zhu
+// @Description: 根据id查找用户
+// @receiver c
 func (c *OrmApiController) GetUserOne() {
 	id, err := c.GetInt("id")
 	if err != nil {
@@ -78,16 +85,18 @@ func (c *OrmApiController) GetUserOne() {
 
 	logs.Info("查询成功", userinfo)
 	//c.Ctx.WriteString("用户名：" + userinfo.Name + "\n" + userinfo.Pwd)
-
+	//rp := tools.Success
 	// 返回用户信息
-	c.Data["json"] = userinfo
+
+	rp := tools.Successed(userinfo)
+	c.Data["json"] = rp
 	c.ServeJSON()
 
 }
 
 // UpdateUserOne
 // @Author ZhenZhen Zhu
-// @Description: 更新用户信息
+// @Description: 根据id更新用户信息
 // @receiver
 func (c *OrmApiController) UpdateUserOne() {
 	id, err := c.GetInt("id")
@@ -130,4 +139,43 @@ func (c *OrmApiController) UpdateUserOne() {
 		c.ServeJSON()
 	}
 
+}
+
+// DeleteUserOne
+// @Author ZhenZhen Zhu
+// @Description: 根据id删除用户数据
+// @receiver
+func (c *OrmApiController) DeleteUserOne() {
+	id, err := c.GetInt("id")
+	if err != nil {
+		beego.Info(err)
+		// 处理错误，例如返回404 Not Found
+		c.Data["json"] = map[string]interface{}{"error": "id not found"}
+		c.Abort("404")
+		return
+	}
+	fmt.Printf("值：%v 类型：%T", id, id)
+
+	o := orm.NewOrm()
+	userinfo := models.UserInfo{}
+
+	userinfo.Id = id
+	err2 := o.Read(&userinfo)
+	if err2 != nil {
+		logs.Error("查询失败")
+		rp := tools.Customize(500, "删除失败，无对应id")
+		c.Data["json"] = rp
+		c.ServeJSON()
+		return
+	}
+	logs.Info("查询成功", userinfo)
+
+	_, err3 := o.Delete(&userinfo)
+	if err3 != nil {
+		logs.Error("删除失败")
+	} else {
+		rp := tools.Customize(200, "删除成功")
+		c.Data["json"] = rp
+		c.ServeJSON()
+	}
 }
