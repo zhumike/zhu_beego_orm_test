@@ -8,6 +8,7 @@ package controllers
  */
 
 import (
+	"fmt"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"
@@ -20,6 +21,10 @@ type OrmApiController struct {
 	beego.Controller
 }
 
+// InsertOne
+// @Author ZhenZhen Zhu
+// @Description: 插入数据
+// @receiver
 func (c *OrmApiController) InsertOne() {
 	//生成orm对象
 	o := orm.NewOrm()
@@ -47,4 +52,82 @@ func (c *OrmApiController) InsertOne() {
 	c.Data["Website"] = "测试orm beego api"
 	c.Data["Email"] = "astaxie@gmail.com"
 	c.TplName = "test.html"
+}
+
+func (c *OrmApiController) GetUserOne() {
+	id, err := c.GetInt("id")
+	if err != nil {
+		beego.Info(err)
+		// 处理错误，例如返回404 Not Found
+		c.Data["json"] = map[string]interface{}{"error": "id not found"}
+		c.Abort("404")
+		return
+	}
+	fmt.Printf("值：%v 类型：%T", id, id)
+	//c.Ctx.WriteString("orm test")
+
+	o := orm.NewOrm()
+	userinfo := models.UserInfo{}
+
+	userinfo.Id = id
+	err2 := o.Read(&userinfo)
+	if err2 != nil {
+		logs.Error("查询失败")
+		return
+	}
+
+	logs.Info("查询成功", userinfo)
+	//c.Ctx.WriteString("用户名：" + userinfo.Name + "\n" + userinfo.Pwd)
+
+	// 返回用户信息
+	c.Data["json"] = userinfo
+	c.ServeJSON()
+
+}
+
+// UpdateUserOne
+// @Author ZhenZhen Zhu
+// @Description: 更新用户信息
+// @receiver
+func (c *OrmApiController) UpdateUserOne() {
+	id, err := c.GetInt("id")
+	if err != nil {
+		beego.Info(err)
+		// 处理错误，例如返回404 Not Found
+		c.Data["json"] = map[string]interface{}{"error": "id not found"}
+		c.Abort("404")
+		return
+	}
+	fmt.Printf("值：%v 类型：%T", id, id)
+	//c.Ctx.WriteString("orm test")
+	newName := c.GetString("name")
+	newPwd := c.GetString("pwd")
+
+	o := orm.NewOrm()
+	userinfo := models.UserInfo{}
+
+	userinfo.Id = id
+	err2 := o.Read(&userinfo)
+	if err2 != nil {
+		logs.Error("查询失败")
+		return
+	}
+	logs.Info("查询成功", userinfo)
+
+	err3 := o.Read(&userinfo)
+	if err3 == nil {
+		userinfo.Name = newName
+		userinfo.Pwd = newPwd
+		_, err := o.Update(&userinfo)
+		if err != nil {
+			logs.Error("更新失败")
+		}
+		// 返回用户信息
+		c.Data["json"] = "更新成功"
+		c.ServeJSON()
+	} else {
+		c.Data["json"] = "更新失败"
+		c.ServeJSON()
+	}
+
 }
