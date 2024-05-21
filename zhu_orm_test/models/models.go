@@ -18,13 +18,21 @@ type UserInfo struct {
 	Pwd  string
 }
 
+type User struct {
+	Id       int
+	Nickname string
+	Mobile   string
+	Password string
+	Role     string
+}
+
 func init() {
 	// 注册数据库
 	orm.RegisterDataBase("default", "mysql", "root:123456zhu@@tcp(127.0.0.1:3306)/zhutest?charset=utf8")
 
 	//注册表
 	orm.RegisterModel(new(UserInfo))
-
+	orm.RegisterModel(new(User))
 	//生成表
 	orm.RunSyncdb("default", false, true)
 

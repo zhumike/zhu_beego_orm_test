@@ -119,6 +119,9 @@ func (c *OrmApiController) UpdateUserOne() {
 	err2 := o.Read(&userinfo)
 	if err2 != nil {
 		logs.Error("查询失败")
+		rp := tools.Customize(500, "无此id，请检查")
+		c.Data["json"] = rp
+		c.ServeJSON()
 		return
 	}
 	logs.Info("查询成功", userinfo)
@@ -131,11 +134,13 @@ func (c *OrmApiController) UpdateUserOne() {
 		if err != nil {
 			logs.Error("更新失败")
 		}
-		// 返回用户信息
-		c.Data["json"] = "更新成功"
+
+		rp := tools.Customize(200, "更新成功")
+		c.Data["json"] = rp
 		c.ServeJSON()
 	} else {
-		c.Data["json"] = "更新失败"
+		rp := tools.Customize(500, "更新失败")
+		c.Data["json"] = rp
 		c.ServeJSON()
 	}
 
@@ -178,4 +183,36 @@ func (c *OrmApiController) DeleteUserOne() {
 		c.Data["json"] = rp
 		c.ServeJSON()
 	}
+}
+
+// GetUserListByRole
+// @Author ZhenZhen Zhu
+// @Description: 高级查询用法1,多个筛选条件
+// @receiver
+func (c *OrmApiController) GetUserListByRole() {
+
+	role := c.GetString("role")
+	password := c.GetString("password")
+
+	if role == "admin" {
+	}
+
+	o := orm.NewOrm()
+	// 获取 QuerySeter 对象，user 为表名
+	qs := o.QueryTable("user")
+
+	//多个查询条件
+
+	var users []*models.User
+
+	_, err := qs.Filter("role", role).Filter("password", password).All(&users)
+	logs.Info("查询结果为:%x", users)
+	if err != nil {
+		logs.Info("查询有误")
+	}
+
+	rp := tools.Successed(users)
+	c.Data["json"] = rp
+	c.ServeJSON()
+
 }
