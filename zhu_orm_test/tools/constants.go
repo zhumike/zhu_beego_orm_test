@@ -21,6 +21,6 @@ func (err ErrCode) getErrMsg() string {
 }
 
 var (
-	Success = &ErrCode{Code: 200, Msg: "请求成功"}
-	Failure = &ErrCode{Code: 500, Msg: "请求失败"}
+	Success = &ErrCode{Code: 200, Msg: "success"}
+	Failure = &ErrCode{Code: 500, Msg: "fail"}
 )
